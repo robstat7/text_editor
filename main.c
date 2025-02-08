@@ -72,6 +72,10 @@ void write_text(void)
 {
 	while(true) {
 		char ch = getch();
+
+		if(ch == 27) {	/* esc key exits insert mode */
+			break;
+		}
 		putchar(ch);
 	}
 }
