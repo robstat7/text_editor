@@ -10,10 +10,16 @@
 #define COMMAND_MODE			0x0
 #define INSERT_MODE			0x1
 
+struct text_buffer_struct {
+	char *base;
+	int pos;	/* position in text buffer */
+} text_buffer;
+
 void enable_raw_mode();
 void disable_raw_mode();
 char getch();
 void write_text(void);
+void free_text_buffer(void);
 
 int main(void)
 {
@@ -23,8 +29,18 @@ int main(void)
 		exit(1);
 	}
 
+	atexit(free_text_buffer);
+
 	/* Disable output buffering so characters appear immediately */	
 	setvbuf(stdout, NULL, _IONBF, 0);
+
+	text_buffer.base = (char *) malloc(2400);	/* allocate text buffer */
+	if(text_buffer.base == NULL) {
+		printf("error: couldn't allocate text buffer!\n");
+		exit(1);
+	}
+
+	text_buffer.pos = 0;
 
 	/* erase the screen with the background color and move the cursor to the top-left corner */
 	printf(ESC "[2J" ESC "[H");
@@ -69,7 +85,7 @@ char getch() {
 }
 
 void write_text(void)
-{
+{	
 	while(true) {
 		char ch = getch();
 
@@ -77,7 +93,15 @@ void write_text(void)
 			break;
 		} else if(ch == 127) {	/* handle backspace */
 			printf("\b \b");	/* Move back, erase character */
+			text_buffer.pos--;
 		}
 		putchar(ch);
+		text_buffer.base[text_buffer.pos] = ch;
+		text_buffer.pos++;
 	}
+}
+
+void free_text_buffer(void)
+{
+	free(text_buffer.base);
 }
