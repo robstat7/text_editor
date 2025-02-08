@@ -75,6 +75,8 @@ void write_text(void)
 
 		if(ch == 27) {	/* esc key exits insert mode */
 			break;
+		} else if(ch == 127) {	/* handle backspace */
+			printf("\b \b");	/* Move back, erase character */
 		}
 		putchar(ch);
 	}
