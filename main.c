@@ -95,6 +95,9 @@ void process_cmdline_cmd(void)
 		/* get the filename to save file */
 		strncpy(filename, cmdline_cmd.cmd + 2, cmdline_cmd.pos);
 
+		/* terminate text buffer with newline */
+		text_buffer.base[text_buffer.pos++] = '\n';
+
 		/* copy text buffer into file */
 		/* create or open the file */
 		int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
