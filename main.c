@@ -10,10 +10,10 @@
 #define COMMAND_MODE			0x0
 #define INSERT_MODE			0x1
 
-int editor_mode = COMMAND_MODE;
-
 void enable_raw_mode();
 void disable_raw_mode();
+char getch();
+void write_text(void);
 
 int main(void)
 {
@@ -28,21 +28,18 @@ int main(void)
 
 	/* erase the screen with the background color and move the cursor to the top-left corner */
 	printf(ESC "[2J" ESC "[H");
-	// fflush(stdout);	/* ensures the screen updates immediately. */
+
+	int mode = COMMAND_MODE;	/* editor mode */
 
 	/* by default, we are in the command mode. Wait for a command. */
-	char cmd;
-
 	while(true) {
-		// cmd = getch();
-		// printf(&cmd);
+		char cmd = getch();
 
-
-		// if(cmd == 'i') {	/* insert command */
-		// 	// printf("%c[2K", 0x1b);	/* erase the entire current line to not print the `i` character */
-		// 	putchar(cmd);
-		// 	editor_mode = INSERT_MODE;
-		// }
+		if(cmd == 'i') {	/* insert command */
+		 	mode = INSERT_MODE;
+			write_text();
+		 	mode = COMMAND_MODE;
+		}
 	}
 
 	return 0;
@@ -62,4 +59,19 @@ void disable_raw_mode() {
 	tcgetattr(STDIN_FILENO, &original);
 	original.c_lflag |= (ICANON | ECHO);	/* re-enable normal mode */
 	tcsetattr(STDIN_FILENO, TCSANOW, &original);
+}
+
+/* get a single character without pressing Enter */
+char getch() {
+	char ch;
+	read(STDIN_FILENO, &ch, 1);
+	return ch;
+}
+
+void write_text(void)
+{
+	while(true) {
+		char ch = getch();
+		putchar(ch);
+	}
 }
