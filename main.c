@@ -84,6 +84,10 @@ int main(void)
 		}
 		else if(cmd == 'k') {
 			printf(ESC "[A");
+		} else if(cmd == 'l') {
+			printf(ESC "[C");
+		} else if(cmd == 'h') {
+			printf(ESC "[D");
 		}
 	}
 
