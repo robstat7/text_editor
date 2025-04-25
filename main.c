@@ -32,6 +32,7 @@ void free_text_buffer(void);
 void get_cmd_line_cmd(void);
 void move_cursor_to_bottom_left(void);
 void process_cmdline_cmd(void);
+void print_text_buffer(void);
 
 int main(void)
 {
@@ -105,6 +106,42 @@ void process_cmdline_cmd(void)
 
 		close(fd);
 	}
+
+	else if(cmdline_cmd.cmd[0] == 'e') { /* edit command */
+		strncpy(filename, cmdline_cmd.cmd + 2, cmdline_cmd.pos);
+
+		/* open file into the editor */
+		int fd = open(filename, O_RDONLY, 0644);
+
+		off_t fsize = lseek(fd, 0, SEEK_END);
+
+		lseek(fd, 0, SEEK_SET);	/* we will read file from beginning */
+
+		read(fd, (void *) text_buffer.base, (size_t) fsize);
+
+		text_buffer.pos = (int) fsize - 1; /* pos begins from 0 */
+
+		close(fd);
+
+		print_text_buffer();
+	}
+}
+
+/* print text buffer after opening a file for editing */
+void print_text_buffer(void)
+{
+	/* erase the screen from the current line (i.e. cmdline) up to the top of the screen */
+	printf(ESC "[1J");
+
+	/* move the cursor to upper left */	
+	printf(ESC "[H");
+
+	for(int i = 0; i < text_buffer.pos; i++) {
+		putchar(text_buffer.base[i]);
+	}
+
+	/* place the blinking cursor at upper left */
+	printf(ESC "[H");
 }
 
 void get_cmd_line_cmd(void)
