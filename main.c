@@ -32,7 +32,7 @@ void free_text_buffer(void);
 void get_cmd_line_cmd(void);
 void move_cursor_to_bottom_left(void);
 void process_cmdline_cmd(void);
-void print_text_buffer(void);
+void print_text_buffer(char *filename, int total_bytes);
 
 int main(void)
 {
@@ -117,21 +117,29 @@ void process_cmdline_cmd(void)
 
 		lseek(fd, 0, SEEK_SET);	/* we will read file from beginning */
 
-		read(fd, (void *) text_buffer.base, (size_t) fsize);
+		int total_bytes = read(fd, (void *) text_buffer.base, (size_t) fsize);
 
 		text_buffer.pos = (int) fsize - 1; /* pos begins from 0 */
 
 		close(fd);
 
-		print_text_buffer();
+		print_text_buffer(filename, total_bytes);
 	}
 }
 
 /* print text buffer after opening a file for editing */
-void print_text_buffer(void)
+void print_text_buffer(char *filename, int total_bytes)
 {
 	/* erase the screen from the current line (i.e. cmdline) up to the top of the screen */
 	printf(ESC "[1J");
+
+	/* move the cursor to the beginning of the bottom line */
+	move_cursor_to_bottom_left();
+
+	/* print opened file details in the bottom line */
+	printf("\"%s\", %dB", filename, total_bytes);
+
+	/* begin printing the file contents */
 
 	/* move the cursor to upper left */	
 	printf(ESC "[H");
