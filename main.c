@@ -77,8 +77,13 @@ int main(void)
 			process_cmdline_cmd();
 			mode = NORMAL_MODE;
 		}
-		else if(cmd == 'j') {	/* normal mode navigation */
+
+		/* normal mode navigation */
+		else if(cmd == 'j') {
 			printf(ESC "[B");
+		}
+		else if(cmd == 'k') {
+			printf(ESC "[A");
 		}
 	}
 
