@@ -77,6 +77,9 @@ int main(void)
 			process_cmdline_cmd();
 			mode = NORMAL_MODE;
 		}
+		else if(cmd == 'j') {	/* normal mode navigation */
+			printf(ESC "[B");
+		}
 	}
 
 	return 0;
