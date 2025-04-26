@@ -127,9 +127,7 @@ void process_cmdline_cmd(void)
 		write(fd, text_buffer.base, text_buffer.pos);
 
 		close(fd);
-	}
-
-	else if(cmdline_cmd.cmd[0] == 'e') { /* edit command */
+	} else if(cmdline_cmd.cmd[0] == 'e') { /* edit command */
 		strncpy(filename, cmdline_cmd.cmd + 2, cmdline_cmd.pos);
 
 		/* open file into the editor */
@@ -146,6 +144,8 @@ void process_cmdline_cmd(void)
 		close(fd);
 
 		print_text_buffer(filename, total_bytes);
+	} else if (cmdline_cmd.cmd[0] == 'q') { /* quit command */
+		exit(0);
 	}
 }
 
