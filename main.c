@@ -33,6 +33,7 @@ void get_cmd_line_cmd(void);
 void move_cursor_to_bottom_left(void);
 void process_cmdline_cmd(void);
 void print_text_buffer(char *filename, int total_bytes);
+void print_file_write_info(char *filename, int total_bytes);
 
 int main(void)
 {
@@ -111,9 +112,12 @@ int main(void)
 }
 
 void move_cursor_to_bottom_left(void) {
-    struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w); // Get terminal size
-    printf("\x1b[%d;1H", w.ws_row); // Move to last row, column 1
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w); // Get terminal size
+	printf("\x1b[%d;1H", w.ws_row); // Move to last row, column 1
+
+	/* erase the entire current line */
+	printf(ESC "[2K");
 }
 
 void process_cmdline_cmd(void)
@@ -130,9 +134,11 @@ void process_cmdline_cmd(void)
 		/* copy text buffer into file */
 		/* create or open the file */
 		int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		write(fd, text_buffer.base, text_buffer.pos);
+		int total_bytes = write(fd, text_buffer.base, text_buffer.pos);
 
 		close(fd);
+
+		print_file_write_info(filename, total_bytes);
 	} else if(cmdline_cmd.cmd[0] == 'e') { /* edit command */
 		strncpy(filename, cmdline_cmd.cmd + 2, cmdline_cmd.pos);
 
@@ -178,6 +184,14 @@ void print_text_buffer(char *filename, int total_bytes)
 
 	/* place the blinking cursor at upper left */
 	printf(ESC "[H");
+}
+
+void print_file_write_info(char *filename, int total_bytes)
+{
+	move_cursor_to_bottom_left();
+
+	/* print written file details in the bottom line */
+	printf("\"%s\", %dB written", filename, total_bytes);
 }
 
 void get_cmd_line_cmd(void)
