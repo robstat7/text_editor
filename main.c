@@ -89,6 +89,16 @@ int main(void)
 		} else if(cmd == 'h') {
 			printf(ESC "[D");
 		}
+
+		/* normal mode keybindings */
+		else if(cmd == 'd') {
+			char cmd = getch();
+			if (cmd == 'd') { /* dd - delete current line */
+				/* do it in the terminal first */
+				printf(ESC "[2K");
+				/* TODO: do it in the buffer */
+			}
+		}
 	}
 
 	return 0;
