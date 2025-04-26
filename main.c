@@ -34,6 +34,8 @@ void move_cursor_to_bottom_left(void);
 void process_cmdline_cmd(void);
 void print_text_buffer(char *filename, int total_bytes);
 void print_file_write_info(char *filename, int total_bytes);
+void write_mode_line(void);
+void undo_mode_line(void);
 
 int main(void)
 {
@@ -70,7 +72,9 @@ int main(void)
 
 		if(cmd == 'i') {	/* insert command */
 		 	mode = INSERT_MODE;
+			write_mode_line();
 			write_text();
+			undo_mode_line();
 		 	mode = NORMAL_MODE;
 		} else if(cmd == ':') {	/* command-line mode */
 			mode = CMD_LINE_MODE;	
@@ -267,4 +271,30 @@ void write_text(void)
 void free_text_buffer(void)
 {
 	free(text_buffer.base);
+}
+
+void undo_mode_line(void)
+{
+	/* save current cursor pos */
+	printf(ESC "[s");
+
+	move_cursor_to_bottom_left();
+
+	/* restore cursor position after a save cursor */
+	printf(ESC "[u");
+}
+
+#define COLOR_BOLD  "\e[1m"
+#define COLOR_OFF   "\e[m"
+
+void write_mode_line(void)
+{
+	/* save current cursor pos */
+	printf(ESC "[s");
+
+	move_cursor_to_bottom_left();
+	printf(COLOR_BOLD "-- INSERT --" COLOR_OFF);
+
+	/* restore cursor position after a save cursor */
+	printf(ESC "[u");
 }
