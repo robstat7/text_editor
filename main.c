@@ -33,9 +33,10 @@ void get_cmd_line_cmd(void);
 void move_cursor_to_bottom_left(void);
 void process_cmdline_cmd(void);
 void print_text_buffer(char *filename, int total_bytes);
-void print_file_write_info(char *filename, int total_bytes);
+void print_file_write_info(char *filename, int total_lines, int total_bytes);
 void write_mode_line(void);
 void undo_mode_line(void);
+int get_num_lines_in_buffer(void);
 
 int main(void)
 {
@@ -132,6 +133,9 @@ void process_cmdline_cmd(void)
 		/* get the filename to save file */
 		strncpy(filename, cmdline_cmd.cmd + 2, cmdline_cmd.pos);
 
+		/* get the number of lines in the buffer */
+		int total_lines = get_num_lines_in_buffer();
+
 		/* terminate text buffer with newline */
 		text_buffer.base[text_buffer.pos++] = '\n';
 
@@ -142,7 +146,7 @@ void process_cmdline_cmd(void)
 
 		close(fd);
 
-		print_file_write_info(filename, total_bytes);
+		print_file_write_info(filename, total_lines, total_bytes);
 
 		/* restore cursor position after a save cursor */
 		printf(ESC "[u");
@@ -194,12 +198,12 @@ void print_text_buffer(char *filename, int total_bytes)
 	printf(ESC "[H");
 }
 
-void print_file_write_info(char *filename, int total_bytes)
+void print_file_write_info(char *filename, int total_lines, int total_bytes)
 {
 	move_cursor_to_bottom_left();
 
 	/* print written file details in the bottom line */
-	printf("\"%s\", %dB written", filename, total_bytes);
+	printf("\"%s\" %dL, %dB written", filename, total_lines, total_bytes);
 }
 
 void get_cmd_line_cmd(void)
@@ -284,7 +288,7 @@ void undo_mode_line(void)
 	printf(ESC "[u");
 }
 
-#define COLOR_BOLD  "\e[1m"
+#define COLOR_BOLD  "\e[1m" /* note "\e" is the escape char */
 #define COLOR_OFF   "\e[m"
 
 void write_mode_line(void)
@@ -297,4 +301,16 @@ void write_mode_line(void)
 
 	/* restore cursor position after a save cursor */
 	printf(ESC "[u");
+}
+
+int get_num_lines_in_buffer(void)
+{
+	int total_lines = 1;	/* assign 1 to handle the first line */
+
+	for (int i = 0; i < text_buffer.pos; i++) {
+		if (text_buffer.base[i] == '\n') {
+			total_lines++;
+		}
+	}
+	return total_lines;
 }
