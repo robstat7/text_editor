@@ -98,6 +98,12 @@ int main(void)
 				printf(ESC "[2K");
 				/* TODO: do it in the buffer */
 			}
+		} else if (cmd == 'g') {
+			char cmd = getch();
+			if (cmd == 'g') {	/* gg - go to first line */
+				printf(ESC "[H");
+				text_buffer.pos = 0;
+			}
 		}
 	}
 
