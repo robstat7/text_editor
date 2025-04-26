@@ -139,6 +139,10 @@ void process_cmdline_cmd(void)
 		close(fd);
 
 		print_file_write_info(filename, total_bytes);
+
+		/* restore cursor position after a save cursor */
+		printf(ESC "[u");
+		
 	} else if(cmdline_cmd.cmd[0] == 'e') { /* edit command */
 		strncpy(filename, cmdline_cmd.cmd + 2, cmdline_cmd.pos);
 
@@ -196,6 +200,9 @@ void print_file_write_info(char *filename, int total_bytes)
 
 void get_cmd_line_cmd(void)
 {
+	/* save current cursor pos */
+	printf(ESC "[s");
+
 	move_cursor_to_bottom_left();
 	printf(":");
 
