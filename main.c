@@ -69,11 +69,15 @@ int main(void)
 
 	int mode = NORMAL_MODE;	/* editor mode */
 
+	char cmd;
+
 	/* by default, we are in the normal mode. Wait for a command. */
 	while(true) {
-		char cmd = getch();
+		if (mode == NORMAL_MODE) {
+			cmd = getch();
+		}
 
-		if(cmd == 'i') {	/* insert command */
+		if(mode == INSERT_MODE || cmd == 'i') {	/* insert command */
 		 	mode = INSERT_MODE;
 			write_mode_line();
 			write_text();
@@ -112,7 +116,14 @@ int main(void)
 				printf(ESC "[H");
 				text_buffer.pos = 0;
 			}
+		} else if (cmd == 'o') {	/* append new line and go to insert mode */
+			char ch = '\n';
+			putchar(ch);
+			text_buffer.base[text_buffer.pos++] = ch;
+
+			mode = INSERT_MODE;
 		}
+
 	}
 
 	return 0;
