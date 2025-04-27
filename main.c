@@ -89,6 +89,8 @@ int main(void)
 			undo_mode_line();
 			/* move cursor backward by 1 column */
 			printf(ESC "[D");
+			cursor.column--;
+			text_buffer.pos--;
 		 	mode = NORMAL_MODE;
 		} else if(cmd == ':') {	/* command-line mode */
 			mode = CMD_LINE_MODE;	
@@ -130,8 +132,13 @@ int main(void)
 			text_buffer.base[text_buffer.pos++] = ch;
 
 			mode = INSERT_MODE;
+		} else if (cmd == 'a') {	/* append */
+			/* move cursor forward by 1 column */
+			printf(ESC "[C");
+			cursor.column++;
+			text_buffer.pos++;
+			mode = INSERT_MODE;
 		}
-
 	}
 
 	return 0;
@@ -158,7 +165,7 @@ void process_cmdline_cmd(void)
 		int total_lines = get_num_lines_in_buffer();
 
 		/* terminate text buffer with newline */
-		text_buffer.base[text_buffer.pos++] = '\n';
+		text_buffer.base[++text_buffer.pos] = '\n';
 
 		/* copy text buffer into file */
 		/* create or open the file */
@@ -171,7 +178,7 @@ void process_cmdline_cmd(void)
 			fd = open(filename, O_WRONLY | O_TRUNC, 0644);
 		}
 
-		int total_bytes = write(fd, text_buffer.base, text_buffer.pos);
+		int total_bytes = write(fd, text_buffer.base, text_buffer.pos + 1);
 
 		--text_buffer.pos; /* decrement buffer pos after write operation */
 
