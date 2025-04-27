@@ -195,7 +195,7 @@ void print_text_buffer(char *filename, int total_bytes)
 	move_cursor_to_bottom_left();
 
 	/* print opened file details in the bottom line */
-	printf("\"%s\", %dB", filename, total_bytes);
+	printf("\"%s\" %dL, %dB", filename, get_num_lines_in_buffer(), total_bytes);
 
 	/* begin printing the file contents */
 
