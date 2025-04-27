@@ -25,6 +25,11 @@ struct cmdline_cmd_struct {
 	int pos;
 } cmdline_cmd;
 
+struct cursor_struct {
+	int row;
+	int column;
+} cursor;
+
 void enable_raw_mode();
 void disable_raw_mode();
 char getch();
@@ -100,6 +105,7 @@ int main(void)
 			printf(ESC "[C");
 		} else if(cmd == 'h') {
 			printf(ESC "[D");
+			cursor.column--;
 		}
 
 		/* normal mode keybindings */
@@ -295,6 +301,9 @@ void write_text(void)
 			putchar(ch);
 			text_buffer.base[text_buffer.pos] = ch;
 			text_buffer.pos++;
+
+			/* update cursor position */
+			cursor.column++;
 		}
 	}
 }
