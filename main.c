@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sys/stat.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <termios.h>
@@ -33,10 +34,11 @@ void get_cmd_line_cmd(void);
 void move_cursor_to_bottom_left(void);
 void process_cmdline_cmd(void);
 void print_text_buffer(char *filename, int total_bytes);
-void print_file_write_info(char *filename, int total_lines, int total_bytes);
+void print_file_write_info(char *filename, bool file_new, int total_lines, int total_bytes);
 void write_mode_line(void);
 void undo_mode_line(void);
 int get_num_lines_in_buffer(void);
+bool file_exists (char *filename);
 
 int main(void)
 {
@@ -141,12 +143,22 @@ void process_cmdline_cmd(void)
 
 		/* copy text buffer into file */
 		/* create or open the file */
-		int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		int fd;
+		bool file_new = false;
+		if(!file_exists(filename)) {	/* if file doesn't exist */
+			fd = open(filename, O_WRONLY | O_CREAT, 0644);
+			file_new = true;
+		} else { /* file already exists */
+			fd = open(filename, O_WRONLY | O_TRUNC, 0644);
+		}
+
 		int total_bytes = write(fd, text_buffer.base, text_buffer.pos);
+
+		--text_buffer.pos; /* decrement buffer pos after write operation */
 
 		close(fd);
 
-		print_file_write_info(filename, total_lines, total_bytes);
+		print_file_write_info(filename, file_new, total_lines, total_bytes);
 
 		/* restore cursor position after a save cursor */
 		printf(ESC "[u");
@@ -198,12 +210,16 @@ void print_text_buffer(char *filename, int total_bytes)
 	printf(ESC "[H");
 }
 
-void print_file_write_info(char *filename, int total_lines, int total_bytes)
+/* print written file details in the bottom line */
+void print_file_write_info(char *filename, bool file_new, int total_lines, int total_bytes)
 {
 	move_cursor_to_bottom_left();
 
-	/* print written file details in the bottom line */
-	printf("\"%s\" %dL, %dB written", filename, total_lines, total_bytes);
+	if (file_new) {
+		printf("\"%s\" [New] %dL, %dB written", filename, total_lines, total_bytes);
+	} else {
+		printf("\"%s\" %dL, %dB written", filename, total_lines, total_bytes);
+	}
 }
 
 void get_cmd_line_cmd(void)
@@ -313,4 +329,10 @@ int get_num_lines_in_buffer(void)
 		}
 	}
 	return total_lines;
+}
+
+/* check if file exists */
+bool file_exists (char *filename) {
+  struct stat   buffer;   
+  return (stat (filename, &buffer) == 0);
 }
