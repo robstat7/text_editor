@@ -87,6 +87,8 @@ int main(void)
 			write_mode_line();
 			write_text();
 			undo_mode_line();
+			/* move cursor backward by 1 column */
+			printf(ESC "[D");
 		 	mode = NORMAL_MODE;
 		} else if(cmd == ':') {	/* command-line mode */
 			mode = CMD_LINE_MODE;	
